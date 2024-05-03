@@ -23,7 +23,11 @@ variable "ram" {
   default     = "512"
 }
 # There are currently no configuration options for the provider itself.
-
+variable "imagen" {
+  type        = string
+  description = "URL de la imagen del sistema operativo"
+  default     = "https://app.vagrantup.com/ubuntu/boxes/bionic64/versions/20180903.0.0/providers/virtualbox.box"
+}
 resource "virtualbox_vm" "node" {
   count     = 1
   name      = var.nombre_maquina
