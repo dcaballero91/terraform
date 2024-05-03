@@ -11,7 +11,17 @@ variable "nombre_maquina" {
   description = "El nombre de la máquina"
   default = "node-01"
 }
+variable "cpus" {
+  type        = number
+  description = "Cantidad de CPUs"
+  default     = 1
+}
 
+variable "ram" {
+  type        = string
+  description = "Cantidad de memoria RAM en MB"
+  default     = "512"
+}
 # There are currently no configuration options for the provider itself.
 
 resource "virtualbox_vm" "node" {
