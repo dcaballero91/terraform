@@ -1,0 +1,86 @@
+pipeline {
+    agent any
+    
+    parameters {
+        choice(name: 'vcenter', choices: ['vsphere8', 'vsphere7'], description: 'Selecciona el vCenter: Selecciona el vCenter al que deseas conectar')
+        choice(name: 'configMaquina', choices: ['small', 'std', 'large', 'extra large'], description: 'Selecciona la configuración de la máquina virtual:')
+    }
+    
+    stages {
+        stage('Clonar Repositorio') {
+            steps {
+                git 'https://tu-repositorio-git-url.git'
+            }
+        }
+        
+        stage('Configuración') {
+            steps {
+                script {
+                    def vcenterName = params.vcenter.toLowerCase()
+                    
+                    if (vcenterName == 'vsphere8') {
+                        def valorSql = input(message: 'Introduce el valor SQL:', parameters: [string(name: 'valorSql', defaultValue: '')])
+                        echo "Valor SQL: ${valorSql}"
+                        def ram
+                        def cpu
+                        switch(params.configMaquina) {
+                            case 'small':
+                                ram = '2'
+                                cpu = '1'
+                                break
+                            case 'std':
+                                ram = '4'
+                                cpu = '2'
+                                break
+                            case 'large':
+                                ram = '8'
+                                cpu = '4'
+                                break
+                            case 'extra large':
+                                ram = '12'
+                                cpu = '8'
+                                break
+                            default:
+                                error "Opción de máquina virtual no válida."
+                        }
+                        
+                        def tarjetaRed = input(message: 'Selecciona la tarjeta de red:', parameters: [choice(name: 'tarjetaRed', choices: ['desa', 'prod'], description: 'Selecciona el tipo de tarjeta de red: desa o prod')])
+                        echo "Tarjeta de red: ${tarjetaRed}"
+                        sh "terraform apply -var 'valor_sql=${valorSql}' -var 'ram=${ram}' -var 'cpu=${cpu}' -var 'tarjeta_red=${tarjetaRed}'"
+                    } else if (vcenterName == 'vsphere7') {
+                        def valorLinux = input(message: 'Introduce el valor Linux:', parameters: [string(name: 'valorLinux', defaultValue: '')])
+                        echo "Valor Linux: ${valorLinux}"
+                        def ram
+                        def cpu
+                        switch(params.configMaquina) {
+                            case 'small':
+                                ram = '2'
+                                cpu = '1'
+                                break
+                            case 'std':
+                                ram = '4'
+                                cpu = '2'
+                                break
+                            case 'large':
+                                ram = '8'
+                                cpu = '4'
+                                break
+                            case 'extra large':
+                                ram = '12'
+                                cpu = '8'
+                                break
+                            default:
+                                error "Opción de máquina virtual no válida."
+                        }
+                        
+                        def tarjetaRed = input(message: 'Selecciona la tarjeta de red:', parameters: [choice(name: 'tarjetaRed', choices: ['desa', 'prod'], description: 'Selecciona el tipo de tarjeta de red: desa o prod')])
+                        echo "Tarjeta de red: ${tarjetaRed}"
+                        sh "terraform apply -var 'valor_linux=${valorLinux}' -var 'ram=${ram}' -var 'cpu=${cpu}' -var 'tarjeta_red=${tarjetaRed}'"
+                    } else {
+                        error "vCenter no válido. Selecciona 'vsphere8' o 'vsphere7'."
+                    }
+                }
+            }
+        }
+    }
+}
