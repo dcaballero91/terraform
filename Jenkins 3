@@ -1,0 +1,48 @@
+pipeline {
+    agent any
+    
+    parameters {
+        choice(name: 'configMaquina', choices: ['small', 'std', 'large', 'extra large'], description: 'Selecciona la configuración de la máquina virtual:')
+    }
+    
+    stages {
+        stage('Clonar Repositorio') {
+            steps {
+                git branch: 'main', url: 'https://tu-repositorio-git-url.git'
+            }
+        }
+        
+        stage('Configuración') {
+            steps {
+                script {
+                    def ram
+                    def cpu
+                    switch(params.configMaquina) {
+                        case 'small':
+                            ram = '2'
+                            cpu = '1'
+                            break
+                        case 'std':
+                            ram = '4'
+                            cpu = '2'
+                            break
+                        case 'large':
+                            ram = '8'
+                            cpu = '4'
+                            break
+                        case 'extra large':
+                            ram = '12'
+                            cpu = '8'
+                            break
+                        default:
+                            error "Opción de máquina virtual no válida."
+                    }
+                    
+                    echo "Configuración de la máquina virtual:"
+                    echo "RAM: ${ram}GB"
+                    echo "CPU: ${cpu} vCPU"
+                }
+            }
+        }
+    }
+}
